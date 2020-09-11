@@ -1,5 +1,3 @@
-// node pollHealth.js --option=1 --loadBalancer=adherencemedrefillcom --port=8080 ^
-// --accessKey=? --secretKey=?
 const AWS = require('aws-sdk');
 const net = require('net');
 const { argv } = require('yargs');
