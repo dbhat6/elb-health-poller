@@ -1,82 +1,45 @@
-const AWS = require('aws-sdk');
-const net = require('net');
-const { argv } = require('yargs');
+const AWS = require("aws-sdk");
+const { argv } = require("yargs");
+
+const AwsUtils = require("./AwsUtils");
+const MiscUtils = require("./MiscUtils");
 
 AWS.config.update({
-  region: 'us-east-1',
+  region: "us-east-1",
   accessKeyId: argv.accessKey,
   secretAccessKey: argv.secretKey,
 });
 
-const elb = new AWS.ELB({ apiVersion: '2012-06-01' });
-const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
-
-const paramsElb = {
-  LoadBalancerName: argv.loadBalancer,
-};
+const elb = new AWS.ELB({ apiVersion: "2012-06-01" });
+const ec2 = new AWS.EC2({ apiVersion: "2016-11-15" });
 
 const option = argv.option || 0;
 const port = argv.port || 8080;
 
-const func = async () => elb
-  .describeInstanceHealth(paramsElb, async (err, data) => {
-    if (err) {
-      throw err;
-    } else {
-      return data;
-    }
-  })
-  .promise();
+const start = async () => {
+  let paramsElb = {};
+  if (argv.loadBalancer) {
+    paramsElb = {
+      LoadBalancerName: argv.loadBalancer,
+    };
+  } else if (argv.dnsName) {
+    const elbName = await AwsUtils.getElbDns(elb, argv);
 
-const pingIP = (ips) => {
-  ips.forEach((ip) => {
-    const sock = new net.Socket();
-    sock.setTimeout(2500);
-    sock
-      .on('connect', () => {
-        console.log(`${ip}:${port} is up.`);
-        sock.destroy();
-      })
-      .on('error', (e) => {
-        console.log(`${ip}:${port} is down: ${e.message}`);
-        sock.destroy();
-      })
-      .on('timeout', () => {
-        console.log(`${ip}:${port} is down: timeout`);
-        sock.destroy();
-      })
-      .connect(port, ip);
-  });
+    paramsElb = {
+      LoadBalancerName: elbName,
+    };
+    console.log(paramsElb);
+  } else {
+    throw new Error("Unknown format");
+  }
+  const ids = await AwsUtils.getInstanceIDs(elb, paramsElb);
+
+  const paramsEc2 = {};
+  paramsEc2.InstanceIds = ids;
+  const ips = await AwsUtils.getIpFromEc2(ec2, paramsEc2);
+  console.log(ips);
+
+  if (option === 1) MiscUtils.pingIP(ips, port);
 };
 
-const instances = [];
-const machineIPs = [];
-const paramsEc2 = {};
-
-func()
-  .then((result) => {
-    result.InstanceStates.forEach((element) => {
-      instances.push(element.InstanceId);
-    });
-
-    paramsEc2.InstanceIds = instances;
-    ec2.describeInstances(paramsEc2, async (err, data) => {
-      if (err) {
-        console.log(err, err.stack);
-      } else {
-        data.Reservations.forEach((reservation) => {
-          reservation.Instances.forEach((instance) => {
-            machineIPs.push(instance.PrivateIpAddress);
-          });
-        });
-        console.log(machineIPs);
-
-        if (option === 1) {
-          pingIP(machineIPs);
-        }
-      }
-    });
-  })
-  .catch((err) => {
-    console.log(err, err.stack);
-  });
+start();

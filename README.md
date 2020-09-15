@@ -4,11 +4,11 @@ This is a simple project created which can be used to fetch individual machine I
 
 ## Installation
 
-*To clone it -*
+**To clone it -**
 ```
 git clone https://github.com/dbhat6/elb-health-poller.git   
 ```
-*To install it -*
+**To install it -**
 ```
 cd elb-health-poller   
 npm i
@@ -16,14 +16,15 @@ npm i
 
 ## Usage
 
-*To run it -*
+**To run it -**
 ```
-node pollHealth.js --option=1 --loadBalancer=? --port=? --accessKey=? --secretKey=?
+node pollHealth.js --option=1 --loadBalancer=? --dnsName=? --port=? --accessKey=? --secretKey=?
 ```
 * option tag has two modes (Defaults to 0) -  
 0 - Just fetches the IPs  
 1 - Fetches the IPs and also hits the port mentioned as the command line argument 
-* loadBalancer is the name of the load balancer to be checked
+* loadBalancer is the name of the load balancer to be checked (given higher preference than dnsName when both are present)
+* dnsName is the URL that you get when you do a ping on the main URL
 * port is which port to perform health checks on (Defaults to 8080) 
 * accessKey is your user's access key for the AWS account
 * secretKey is your user's secret key for the AWS account
