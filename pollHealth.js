@@ -1,17 +1,17 @@
-const AWS = require("aws-sdk");
-const { argv } = require("yargs");
+const AWS = require('aws-sdk');
+const { argv } = require('yargs');
 
-const AwsUtils = require("./AwsUtils");
-const MiscUtils = require("./MiscUtils");
+const AwsUtils = require('./AwsUtils');
+const MiscUtils = require('./MiscUtils');
 
 AWS.config.update({
-  region: "us-east-1",
+  region: 'us-east-1',
   accessKeyId: argv.accessKey,
   secretAccessKey: argv.secretKey,
 });
 
-const elb = new AWS.ELB({ apiVersion: "2012-06-01" });
-const ec2 = new AWS.EC2({ apiVersion: "2016-11-15" });
+const elb = new AWS.ELB({ apiVersion: '2012-06-01' });
+const ec2 = new AWS.EC2({ apiVersion: '2016-11-15' });
 
 const option = argv.option || 0;
 const port = argv.port || 8080;
@@ -30,7 +30,7 @@ const start = async () => {
     };
     console.log(paramsElb);
   } else {
-    throw new Error("Unknown format");
+    throw new Error('Unknown format');
   }
   const ids = await AwsUtils.getInstanceIDs(elb, paramsElb);
 

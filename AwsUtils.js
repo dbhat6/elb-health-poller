@@ -1,38 +1,32 @@
-const elbDescInstances = (elb, paramsElb) => {
-  return new Promise((resolve, reject) => {
-    elb.describeInstanceHealth(paramsElb, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
+const elbDescInstances = (elb, paramsElb) => new Promise((resolve, reject) => {
+  elb.describeInstanceHealth(paramsElb, (err, data) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve(data);
+    }
   });
-};
+});
 
-const elbDescLoadBalancers = (elb, paramsElb) => {
-  return new Promise((resolve, reject) => {
-    elb.describeLoadBalancers(paramsElb, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
+const elbDescLoadBalancers = (elb, paramsElb) => new Promise((resolve, reject) => {
+  elb.describeLoadBalancers(paramsElb, (err, data) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve(data);
+    }
   });
-};
+});
 
-const ec2DescribeInstances = (ec2, paramsEc2) => {
-  return new Promise((resolve, reject) => {
-    ec2.describeInstances(paramsEc2, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
+const ec2DescribeInstances = (ec2, paramsEc2) => new Promise((resolve, reject) => {
+  ec2.describeInstances(paramsEc2, (err, data) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve(data);
+    }
   });
-};
+});
 
 const getElbDns = async (elb, params) => {
   const emptyParams = {};
